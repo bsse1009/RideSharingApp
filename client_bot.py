@@ -11,12 +11,12 @@ driver_data = [["Ikram", "Dhaka1009"], ["Moaj", "Dhaka1111"], ["Karim", "CHA122"
 
 
 sio = socketio.Client()
-sio.connect('http://localhost:5000', namespaces=['/communication'])
+sio.connect(BASE, namespaces=['/communication'])
 
 
 @sio.event(namespace='/communication')
-def handle_message(data):
-    print('received message: ' + data)
+def message(data):
+    print('received message: ' + data['rider'])
 
 
 for i in range(10):
@@ -31,20 +31,21 @@ for i in range(10):
     driver_coordinate = [random.random()*25, random.random()*25]
 
     rider = {
+        "id": rider_id,
         "name": rider_name,
         "current_location": current_location,
         "destination": destination
     }
 
     driver = {
+        "id": driver_id,
         "name": driver_name,
         "car_number": car_number,
         "current_location": driver_coordinate
     }
 
-    response = requests.post(BASE+f'rider/{rider_id}', rider)
-    print(response.json())
-    time.sleep(5)
-    response = requests.post(BASE+f'driver/{driver_id}', driver)
-    print(response.json())
+    response = requests.post(BASE+'rider', rider)
+    print(response)
+    response = requests.post(BASE+'driver', driver)
+    print(response)
     time.sleep(5)
