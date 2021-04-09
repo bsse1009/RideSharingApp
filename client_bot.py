@@ -1,12 +1,23 @@
 import requests
 import random
 import time
+import socketio
 
 BASE = "http://127.0.0.1:5000/"
 
 rider_data = ["Ibrahim", "Purbo", "mahdee", "Nirab", "Yasin", "Ahsan", "Sobah", "Sakib"]
 driver_data = [["Ikram", "Dhaka1009"], ["Moaj", "Dhaka1111"], ["Karim", "CHA122"], ["Basir", "SYL111032"],
                ["Ifti", "SYL9001"], ["Pranto", "RAJ1026"]]
+
+
+sio = socketio.Client()
+sio.connect('http://localhost:5000', namespaces=['/communication'])
+
+
+@sio.event(namespace='/communication')
+def handle_message(data):
+    print('received message: ' + data)
+
 
 for i in range(10):
     rider_id = i % len(rider_data)
