@@ -16,7 +16,14 @@ sio.connect(BASE, namespaces=['/communication'])
 
 @sio.event(namespace='/communication')
 def message(data):
-    print('received message: ' + data['rider'])
+    print('received message: Rider ' + data['rider'] + 'is assigned to Driver ' + data['driver'])
+    driver_rating = {
+        "_id": data['driver_id'],
+        "name": data['driver'],
+        "rating": "5"
+    }
+    response = requests.post(BASE+'rating', driver_rating)
+    print(response.json())
 
 
 for i in range(10):
@@ -45,7 +52,7 @@ for i in range(10):
     }
 
     response = requests.post(BASE+'rider', rider)
-    print(response)
+    print(response.json())
     response = requests.post(BASE+'driver', driver)
-    print(response)
+    print(response.json())
     time.sleep(5)
