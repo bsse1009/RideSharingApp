@@ -1,15 +1,20 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
-from flask_socketio import SocketIO, emit
-import time
+from flask_socketio import SocketIO
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 import math
+import pymongo
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '!brahim123'
 api = Api(app)
 socketIo = SocketIO(app)
+
+
+cluster = pymongo.MongoClient("mongodb+srv://driver:01858692mik@cluster0.imemt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = cluster["driver"]
+collection = db["rating"]
 
 rider_put_args = reqparse.RequestParser()
 rider_put_args.add_argument("id", type=int, help="rider id is required!", required=True)
@@ -27,6 +32,11 @@ driver_put_args.add_argument("current_location", action='append', help="current_
 
 drivers = []
 
+rating_put_args = reqparse.RequestParser()
+rating_put_args.add_argument("_id", type=int, help="driver id is required!", required=True)
+rating_put_args.add_argument("name", type=str, help="name of a driver is required!", required=True)
+rating_put_args.add_argument("rating", type=str, help="car_number of a driver is required!", required=True)
+
 
 def abort_if_rider_already_exist(rider_id):
     if rider_id in riders:
@@ -41,7 +51,7 @@ def abort_if_driver_already_exist(driver_id):
 @socketIo.on('message')
 def serve(rider, driver):
     print(f'rider {rider} is assign to driver {driver}')
-    socketIo.emit('message', {'rider': rider['name'], 'driver': driver['name']}, namespace='/communication')
+    socketIo.emit('message', {'rider': rider['name'], 'driver': driver['name'], 'driver_id': driver['id']}, namespace='/communication')
     riders.remove(rider)
     drivers.remove(driver)
 
@@ -76,7 +86,7 @@ class Rider(Resource):
         args = rider_put_args.parse_args()
         riders.append(args)
         # print(riders[rider_id]["current_location"])
-        return args['name'], 201
+        return "recieved", 201
 
 
 class Driver(Resource):
@@ -84,12 +94,15 @@ class Driver(Resource):
         # abort_if_driver_already_exist(driver_id)
         args = driver_put_args.parse_args()
         drivers.append(args)
-        return args['name'], 201
+        return "recieved", 201
 
 
 class Rating(Resource):
     def post(self):
-        pass
+        args = rating_put_args.parse_args()
+        collection.insert_one(args)
+        print(args)
+        return "added to database", 201
 
 
 api.add_resource(Rider, "/rider")
