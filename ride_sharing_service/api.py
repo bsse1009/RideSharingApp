@@ -5,7 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import math
 import requests
 
-BASE = "http://172.17.0.1:5003/"
+BASE = "http://communication_service:5003/"
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '!brahim123'
 api = Api(app)
