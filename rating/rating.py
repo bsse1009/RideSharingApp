@@ -5,10 +5,9 @@ from pymongo import MongoClient
 app = Flask(__name__)
 api = Api(app)
 
-cluster = MongoClient(port=27017)
+cluster = MongoClient(host='172.17.0.1',port=2717)
 db = cluster["driver"]
 collection = db["rating"]
-
 
 rating_put_args = reqparse.RequestParser()
 rating_put_args.add_argument("_id", type=int, help="driver id is required!", required=True)
@@ -34,4 +33,4 @@ class Rating(Resource):
 api.add_resource(Rating, "/rating")
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True, host='0.0.0.0', port=5000)

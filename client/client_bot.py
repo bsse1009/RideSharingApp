@@ -3,8 +3,8 @@ import random
 import time
 import socketio
 
-BASE1 = "http://127.0.0.1:5000/"
-BASE2 = "http://127.0.0.1:5003/"
+BASE1 = "http://localhost:80/"
+BASE2 = "http://localhost:5003/communication"
 
 rider_data = ["Ibrahim", "Purbo", "mahdee", "Nirab", "Yasin", "Ahsan", "Sobah", "Sakib"]
 driver_data = [["Ikram", "Dhaka1009"], ["Moaj", "Dhaka1111"], ["Karim", "CHA122"], ["Basir", "SYL111032"],
@@ -13,7 +13,7 @@ driver_data = [["Ikram", "Dhaka1009"], ["Moaj", "Dhaka1111"], ["Karim", "CHA122"
 
 sio = socketio.Client()
 sio.connect(BASE2, namespaces=['/communication'])
-
+print("connceted")
 
 @sio.event(namespace='/communication')
 def message(data):

@@ -23,10 +23,10 @@ class Communication(Resource):
     def post(self):
         args = match_put_args.parse_args()
         serve(args)
-        return "recieved", 201
+        return "recieved matched pair", 201
 
 
 api.add_resource(Communication, "/communication")
 
 if __name__ == '__main__':
-    socketIo.run(app, debug=True, port=5003)
+    socketIo.run(app, debug=True, host='0.0.0.0', port=5000)

@@ -5,11 +5,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import math
 import requests
 
-BASE = "http://127.0.0.1:5003/"
+BASE = "http://172.17.0.1:5003/"
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '!brahim123'
 api = Api(app)
-# socketIo = SocketIO(app)
 
 rider_put_args = reqparse.RequestParser()
 rider_put_args.add_argument("id", type=int, help="rider id is required!", required=True)
@@ -38,12 +37,6 @@ def abort_if_driver_already_exist(driver_id):
         abort(409, message="driver already exist!!")
 
 
-# @socketIo.on('serve')
-# def serve(rider, driver, fare):
-#     print(f'rider {rider} is assign to driver {driver}')
-#     socketIo.emit('message', {'rider': rider['name'], 'driver': driver['name'], 'driver_id': driver['id'], 'fare': fare}, namespace='/communication')
-
-
 def find_best_match():
     for rider in riders:
         x1 = float(rider['current_location'][0])
@@ -67,7 +60,8 @@ def find_best_match():
             "driver_name": best_match['name'],
             "fare": fare
         }
-        response = requests.post(BASE+'communication', match)
+        response = requests.post(BASE+'communication', match) #'communication'
+        print(response.json())
         print(f'passed to communication portal {response}')
         riders.remove(rider)
         drivers.remove(best_match)
@@ -83,19 +77,21 @@ class Rider(Resource):
     def post(self):
         args = rider_put_args.parse_args()
         riders.append(args)
-        return "recieved", 201
+        print("Hit Rider end")
+        return "recieved rider info.", 201
 
 
 class Driver(Resource):
     def post(self):
         args = driver_put_args.parse_args()
         drivers.append(args)
-        return "recieved", 201
+        print("Hit driver end")
+        return "recieved driver info.", 201
 
 
 api.add_resource(Rider, "/api/rider")
 api.add_resource(Driver, "/api/driver")
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)
     scheduler.start()
