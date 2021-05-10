@@ -1,33 +1,87 @@
 version: '3'
 
+networks:
+  bdnet:
+    ipam:
+      config:
+        - subnet: 10.100.0.0/24
+
 services:
-  ride-sharing-service:
+  ride-sharing-service-dhaka:
     build: ./ride_sharing_service/
     depends_on:
-      - communication_service
+      - communication_service_dhaka
     restart: always
+    environment:
+      - SERVER_LOCATION=dhaka
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.11
+
+  ride-sharing-service-chittagong:
+    build: ./ride_sharing_service/
+    depends_on:
+      - communication_service_chittagong
+    restart: always
+    environment:
+      - SERVER_LOCATION=chittagong
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.21
     
+  
+  communication_service_dhaka:
+    build: ./communication/
+    restart: always
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.12
+  
+  communication_service_chittagong:
+    build: ./communication/
+    restart: always
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.22
+    
+  nginx_dhaka:
+    build: ./nginx/
+    depends_on:
+      - ride-sharing-service-dhaka
+      - rating-service
+    restart: always
+    environment: 
+      - API_V1=ride-sharing-service-dhaka
+      - API_V2=rating-service
+    command: /bin/sh -c "envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'" 
+    networks:
+        bdnet:
+            ipv4_address: 10.100.0.10
+
+  nginx_chittagong:
+    build: ./nginx/
+    depends_on:
+      - ride-sharing-service-chittagong
+      - rating-service
+    restart: always
+    environment: 
+      - API_V1=ride-sharing-service-chittagong
+      - API_V2=rating-service
+    command: /bin/sh -c "envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'" 
+    networks:
+        bdnet:
+            ipv4_address: 10.100.0.20
+
+
   rating-service:
     build: ./rating/
     restart: always
     depends_on: 
       - mongodb_container
-
-  communication_service:
-    build: ./communication/
-    ports: 
-      - 5003:5000
-    restart: always
-    
-  nginx:
-    build: ./nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - ride-sharing-service
-      - rating-service
-    restart: always
-
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.100
+  
 
   mongodb_container:
     image: mongo:latest
@@ -36,6 +90,9 @@ services:
     volumes:
       - mongodb_data_container:/data/db
     restart: always
+    networks:
+      bdnet:
+          ipv4_address: 10.100.0.101
 
 volumes:
   mongodb_data_container:

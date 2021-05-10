@@ -3,8 +3,8 @@ import random
 import time
 import socketio
 
-BASE1 = "http://uber.dhaka.com/"
-BASE2 = "http://communication.dhaka.com:5000/communication"
+BASE1 = "http://uber.chittagong.com/"
+BASE2 = "http://communication.chittagong.com:5000/communication"
 
 rider_data = ["Ibrahim", "Purbo", "mahdee", "Nirab", "Yasin", "Ahsan", "Sobah", "Sakib"]
 driver_data = [["Ikram", "Dhaka1009"], ["Moaj", "Dhaka1111"], ["Karim", "CHA122"], ["Basir", "SYL111032"],

@@ -4,8 +4,11 @@ import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 import math
 import requests
+import os
 
-BASE = "http://communication_service:5003/"
+SERVER_LOCATION = os.getenv('SERVER_LOCATION')
+
+BASE = f'http://communication_service_{SERVER_LOCATION}:5000/'
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '!brahim123'
 api = Api(app)
